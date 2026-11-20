@@ -48,7 +48,10 @@ CREATE TABLE `senhas` (
   `prioridade` tinyint(1) DEFAULT NULL,
   `tipo` varchar(20) DEFAULT NULL,
   `stat` varchar(50) DEFAULT 'AGUARDANDO',
-  `emissao` datetime DEFAULT NULL
+  `emissao` datetime DEFAULT NULL,
+  `chamada` datetime DEFAULT NULL,
+  `inicio_atendimento` datetime DEFAULT NULL,
+  `termino_atendimento` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
