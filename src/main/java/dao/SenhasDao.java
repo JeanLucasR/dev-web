@@ -27,9 +27,13 @@ public class SenhasDao {
 
             LocalDateTime emissao = LocalDateTime.now();
 
+
             ps.setTimestamp(4, Timestamp.valueOf(emissao));
 
             ps.executeUpdate();
+        } catch (SQLException e){
+            System.out.println(e);
+            throw new RuntimeException("Erro ao salvar senha no banco de dados", e);
         }
     }
 

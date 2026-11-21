@@ -68,15 +68,25 @@ public class SenhasService {
         }
 
 
-        Senha senha = new Senha(prioridade, tipo);
+         Senha senha = new Senha(prioridade, tipo);
 
-        dao.salvarSenha(senha);
+    
+    System.out.println(senha.getCodigo());
+    System.out.println(senha.getTipo());
+    System.out.println(senha.isPrioridade());
 
-        List<Senha> fila = dao.listarAguardandoPorTipo(tipo);
+    dao.salvarSenha(senha);
 
-        int consecutivas = dao.buscarContadorPrioridade(tipo);
+    
+    List<Senha> fila = dao.listarAguardandoPorTipo(tipo);
 
-        int pessoasNaFrente = calcularPosicao(senha, fila, consecutivas);
+   
+    int consecutivas = dao.buscarContadorPrioridade(tipo);
+
+ 
+    int pessoasNaFrente = calcularPosicao(
+        senha, fila, consecutivas
+    );
 
         return new EmissaoSenhaDto(senha, pessoasNaFrente);
     }
