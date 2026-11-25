@@ -3,16 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emissao de senha</title>
-     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-     <script src="js/usuarioApp.js" defer></script>
+
+    <title>Emissão de senha</title>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="js/usuarioApp.js" defer></script>
 </head>
+
 <body>
     <div id="app">
+
         <section v-if="etapa === 'tipo'">
             <h2>Bem-vindo(a)!</h2>
-            <h2>Qual serviço deseja realizar</h2>
+            <h2>Qual serviço deseja realizar?</h2>
+
             <br>
+
             <p>
                 <button @click="selecionarTipo('E')">
                     Emissão de documento
@@ -22,6 +28,7 @@
                     Renovação de CNH
                 </button>
             </p>
+
             <p>
                 <button @click="selecionarTipo('LIC')">
                     Licenciamento
@@ -29,12 +36,14 @@
             </p>
         </section>
 
-
         <section v-else-if="etapa === 'prioridade'">
+
             <button @click="voltarParaTipo()">
                 Voltar
             </button>
-            <h2>Atendimento prioritario?</h2>
+
+            <h2>Atendimento prioritário?</h2>
+
             <p>
                 <button @click="selecionarPrioridade(true)">
                     Sim
@@ -49,11 +58,17 @@
         <section v-else-if="etapa === 'confirmacao'">
             <h2>Confirme os dados</h2>
 
-           <p><strong>Serviço:</strong> {{ descricaoTipo(novo.tipo) }}</p>
+            <p>
+                <strong>Serviço:</strong>
+                {{ descricaoTipo(novo.tipo) }}
+            </p>
 
-           <p><strong>Prioridade:</strong>{{ novo.prioridade ? 'Sim' : 'Não' }}</p>
+            <p>
+                <strong>Prioridade:</strong>
+                {{ novo.prioridade ? 'Sim' : 'Não' }}
+            </p>
 
-            <button @click="novaSenha()">
+            <button @click="novaSenha()" :disabled="salvando">
                 Confirmar
             </button>
 
@@ -69,7 +84,7 @@
 
         <section v-else-if="etapa === 'resultado'">
 
-        <div v-if="houveErro">
+            <div v-if="houveErro">
                 <h1>Não foi possível emitir sua senha</h1>
                 <p>{{ mensagem }}</p>
             </div>
@@ -79,17 +94,28 @@
 
                 <h2>{{ senha.codigo }}</h2>
 
-                <p>Pessoas na sua frente: {{ senha.fila }}</p>
+                <p>
+                    <strong>Serviço:</strong>
+                    {{ descricaoTipo(senha.tipo) }}
+                </p>
 
+                <p>
+                    <strong>Prioridade:</strong>
+                    {{ senha.prioridade ? 'Sim' : 'Não' }}
+                </p>
+
+                <p>
+                    <strong>Pessoas na sua frente:</strong>
+                    {{ senha.fila }}
+                </p>
             </div>
 
             <button @click="reiniciar()">
                 OK
             </button>
+
         </section>
 
-
     </div>
-    
 </body>
 </html>

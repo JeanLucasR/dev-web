@@ -6,7 +6,7 @@ createApp({
             etapa: 'tipo',
 
             novo: {tipo: '', prioridade: false},
-            senha: {codigo: '', fila: 0},
+            senha: {codigo: '', fila: 0, tipo: '', prioridade: false},
             mensagem: '',
             houveErro: false,
             salvando: false
@@ -16,15 +16,16 @@ createApp({
     methods: {
 
         descricaoTipo(tipo){
-            let descricao = ''
-            if (tipo === 'C')
-                descricao = 'Renovação CNH'
-            else if (tipo === 'E')
-                descricao = 'Emissão documento'
-            else if (tipo === 'LIC')
-                descricao = 'Licenciamento'
+            let descricao = '';
 
-            return descricao 
+            if (tipo === 'C')
+                descricao = 'Renovação CNH';
+            else if (tipo === 'E')
+                descricao = 'Emissão documento';
+            else if (tipo === 'LIC')
+                descricao = 'Licenciamento';
+
+            return descricao;
         },
 
         selecionarTipo(tipo) {
@@ -44,7 +45,13 @@ createApp({
         },
 
         async novaSenha(){
+            if (this.salvando) return;
+
             this.salvando = true;
+            this.etapa = 'carregando';
+
+            const solicitacao = { ...this.novo };
+
             this.mensagem = '';
             this.houveErro = false;
 
@@ -52,7 +59,7 @@ createApp({
                 const resposta = await fetch('usuarioSenha', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(this.novo)
+                    body: JSON.stringify(solicitacao)
                 });
 
                 const dados = await resposta.json();
@@ -60,25 +67,30 @@ createApp({
                 console.log("Status HTTP:", resposta.status);
                 console.log("Resposta do servidor:", dados);
 
-                if(!resposta.ok)
-                    throw new Error(dados.erro || "erro ao requisitar senha.")
+                if (!resposta.ok)
+                    throw new Error(dados.erro || "Erro ao requisitar senha.");
 
                 this.senha.codigo = dados.codigo;
                 this.senha.fila = dados.pessoasNaFrente;
+                this.senha.tipo = solicitacao.tipo;
+                this.senha.prioridade = solicitacao.prioridade;
                 this.mensagem = dados.mensagem;
 
-                this.novo = {tipo: '', prioridade: ''};                
+                this.novo = {tipo: '', prioridade: false};
+
             } catch(erro){
                 this.houveErro = true;
                 this.mensagem = erro.message;
+
             } finally {
                 this.salvando = false;
                 this.etapa = 'resultado';
             }
         },
+
         reiniciar() {
-            this.novo = { tipo: '', prioridade: false};
-            this.senha = { codigo: '', fila: 0 };
+            this.novo = {tipo: '', prioridade: false};
+            this.senha = {codigo: '', fila: 0, tipo: '', prioridade: false};
             this.mensagem = '';
             this.houveErro = false;
             this.etapa = 'tipo';
