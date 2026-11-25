@@ -32,7 +32,7 @@ CREATE TABLE `guiches` (
   `ID` int(11) NOT NULL,
   `atende_cnh` tinyint(1) DEFAULT NULL,
   `atende_emissao` tinyint(1) DEFAULT NULL,
-  `atende_processo` tinyint(1) DEFAULT NULL,
+  `atende_lic` tinyint(1) DEFAULT NULL,
   `abertura` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

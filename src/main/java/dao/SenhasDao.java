@@ -32,7 +32,6 @@ public class SenhasDao {
 
             ps.executeUpdate();
         } catch (SQLException e){
-            System.out.println(e);
             throw new RuntimeException("Erro ao salvar senha no banco de dados", e);
         }
     }
@@ -56,8 +55,56 @@ public class SenhasDao {
         }
     }
 
+    public boolean chamarSenha(Senha senha, LocalDateTime aberturaGuiche) throws SQLException {
+        String sql = "UPDATE senhas SET stat = 'CHAMADA', chamada = CURRENT_TIMESTAMP WHERE codigo = ? AND emissao >= ? AND stat = 'AGUARDANDO'";
+        try (
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, senha.getCodigo());
+            ps.setTimestamp(2, Timestamp.valueOf(aberturaGuiche));
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean iniciarAtendimento(Senha senha, LocalDateTime aberturaGuiche) throws SQLException {
+        String sql = "UPDATE senhas SET stat = 'EM ATENDIMENTO', inicio_atendimento = CURRENT_TIMESTAMP WHERE codigo = ? AND emissao >= ? AND stat = 'CHAMADA'";
+        try (
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, senha.getCodigo());
+            ps.setTimestamp(2, Timestamp.valueOf(aberturaGuiche));
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean finalizarAtendimento(Senha senha, LocalDateTime aberturaGuiche) throws SQLException {
+        String sql = "UPDATE senhas SET stat = 'FINALIZADA', termino_atendimento = CURRENT_TIMESTAMP WHERE codigo = ? AND emissao >= ? AND stat = 'EM ATENDIMENTO'";
+        try (
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, senha.getCodigo());
+            ps.setTimestamp(2, Timestamp.valueOf(aberturaGuiche));
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean marcarAusente(Senha senha, LocalDateTime aberturaGuiche) throws SQLException {
+        String sql = "UPDATE senhas SET stat = 'AUSENTE' WHERE codigo = ? AND emissao >= ? AND stat = 'CHAMADA'";
+        try (
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, senha.getCodigo());
+            ps.setTimestamp(2, Timestamp.valueOf(aberturaGuiche));
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     public List<Senha> listar(LocalDateTime aberturaGuiche) throws SQLException {
-        String sql = "SELECT codigo, prioridade, tipo, stat, emissao FROM senhas WHERE emissao >= ?";
+        String sql = "SELECT codigo, prioridade, tipo, stat, emissao FROM senhas WHERE emissao >= ? LIMIT 10";
         List<Senha> senhas = new ArrayList<>();
 
         try(
@@ -81,38 +128,48 @@ public class SenhasDao {
         }
     }
 
-    public List<Senha> listarAguardandoPorTipo(String tipo)
+    public List<Senha> listarAguardandoPorTipo(String tipo) throws SQLException {
+        return listarAguardandoPorTipo(tipo, null);
+    }
+
+    public List<Senha> listarAguardandoPorTipo(String tipo, LocalDateTime aberturaGuiche)
         throws SQLException {
+        String sql = "SELECT codigo, prioridade, tipo, stat FROM senhas "
+            + "WHERE tipo = ? AND stat = 'AGUARDANDO'";
+        if (aberturaGuiche != null) {
+            sql += " AND emissao >= ?";
+        }
+        sql += " ORDER BY emissao ASC, ID ASC";
 
-    String sql = "SELECT codigo, prioridade, tipo, stat FROM senhas WHERE tipo = ? AND stat = 'AGUARDANDO' ORDER BY emissao ASC, ID ASC";
+        List<Senha> senhas = new ArrayList<>();
 
-    List<Senha> senhas = new ArrayList<>();
+        try (
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, tipo);
+            if (aberturaGuiche != null) {
+                ps.setTimestamp(2, Timestamp.valueOf(aberturaGuiche));
+            }
 
-    try (
-        Connection conn = ConnectionFactory.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql)
-    ) {
-        ps.setString(1, tipo);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Senha senha = new Senha(
+                        rs.getString("codigo"),
+                        rs.getBoolean("prioridade"),
+                        rs.getString("tipo"),
+                        rs.getString("stat")
+                    );
 
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Senha senha = new Senha(
-                    rs.getString("codigo"),
-                    rs.getBoolean("prioridade"),
-                    rs.getString("tipo"),
-                    rs.getString("stat")
-                );
-
-                senhas.add(senha);
+                    senhas.add(senha);
+                }
             }
         }
+
+        return senhas;
     }
 
-    return senhas;
-    }
-
-public int buscarContadorPrioridade(String tipo)
-        throws SQLException {
+    public int buscarContadorPrioridade(String tipo) throws SQLException {
 
     String sql = "SELECT prioritarias_consecutivas FROM controle_fila WHERE tipo = ?";
 
@@ -132,10 +189,7 @@ public int buscarContadorPrioridade(String tipo)
     throw new SQLException("Tipo de atendimento não cadastrado.");
     }
 
-    public void atualizarContadorPrioridade(
-        String tipo,
-        int contador
-) throws SQLException {
+    public void atualizarContadorPrioridade(String tipo, int contador) throws SQLException {
 
     String sql = "UPDATE controle_fila SET prioritarias_consecutivas = ? WHERE tipo = ?";
 

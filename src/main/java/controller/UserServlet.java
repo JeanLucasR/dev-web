@@ -19,16 +19,9 @@ import service.UserService;
 
 @WebServlet("/usuarioSenha")
 public class UserServlet extends HttpServlet {
-    private final UserService service;
+    private final UserService service = new UserService();
     private final Gson gson = new Gson();
 
-    public UserServlet() {
-        this(new UserService());
-    }
-
-    UserServlet(UserService service) {
-        this.service = service;
-    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -37,21 +30,12 @@ public class UserServlet extends HttpServlet {
 
         try {
             JsonElement body = JsonParser.parseReader(req.getReader());
-            if (body == null || !body.isJsonObject()) {
-                throw new IllegalArgumentException("O corpo da requisição deve ser um objeto JSON.");
-            }
 
             JsonObject entrada = body.getAsJsonObject();
             JsonElement tipoElement = entrada.get("tipo");
             JsonElement prioridadeElement = entrada.get("prioridade");
-            if (tipoElement == null || !tipoElement.isJsonPrimitive()
-                    || !tipoElement.getAsJsonPrimitive().isString()) {
-                throw new IllegalArgumentException("O campo 'tipo' deve ser uma string.");
-            }
-            if (prioridadeElement == null || !prioridadeElement.isJsonPrimitive()
-                    || !prioridadeElement.getAsJsonPrimitive().isBoolean()) {
-                throw new IllegalArgumentException("O campo 'prioridade' deve ser true ou false.");
-            }
+            
+            
 
             EmissaoSenhaDto emissao = service.solicitarSenha(
                     tipoElement.getAsString(),

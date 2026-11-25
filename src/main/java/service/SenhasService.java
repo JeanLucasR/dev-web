@@ -62,33 +62,25 @@ public class SenhasService {
     }
 
 
-    public synchronized EmissaoSenhaDto emitirSenha( String tipo, boolean prioridade) throws SQLException {
+    public synchronized EmissaoSenhaDto emitirSenha(String tipo, boolean prioridade) throws SQLException {
         if(tipo == null || !TIPOS_VALIDOS.contains(tipo)){
             throw new IllegalArgumentException("Tipo de atendimento inválido.");
         }
 
 
-         Senha senha = new Senha(prioridade, tipo);
+        Senha senha = new Senha(prioridade, tipo);
 
     
-    System.out.println(senha.getCodigo());
-    System.out.println(senha.getTipo());
-    System.out.println(senha.isPrioridade());
-
-    dao.salvarSenha(senha);
+        dao.salvarSenha(senha);
+        List<Senha> fila = dao.listarAguardandoPorTipo(tipo);
+        int consecutivas = dao.buscarContadorPrioridade(tipo);
 
     
-    List<Senha> fila = dao.listarAguardandoPorTipo(tipo);
+        int pessoasNaFrente = calcularPosicao(
+            senha, fila, consecutivas
+        );
 
-   
-    int consecutivas = dao.buscarContadorPrioridade(tipo);
-
- 
-    int pessoasNaFrente = calcularPosicao(
-        senha, fila, consecutivas
-    );
-
-        return new EmissaoSenhaDto(senha, pessoasNaFrente);
-    }
+            return new EmissaoSenhaDto(senha, pessoasNaFrente);
+        }
 
 }
