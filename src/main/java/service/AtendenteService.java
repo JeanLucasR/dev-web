@@ -68,16 +68,16 @@ public class AtendenteService {
         return senhasDao.listar(guiche.getAbertura());
     }
 
-    public void iniciarAtendimento(Senha senha) throws SQLException{
-        senhasDao.iniciarAtendimento(senha, guiche.getAbertura());
+    public void iniciarAtendimento(String codigo) throws SQLException{
+        senhasDao.iniciarAtendimento(codigo, guiche.getAbertura());
     }
 
-    public void finalizarAtendimento(Senha senha) throws SQLException {
-        senhasDao.finalizarAtendimento(senha, guiche.getAbertura());
+    public void finalizarAtendimento(String codigo) throws SQLException {
+        senhasDao.finalizarAtendimento(codigo, guiche.getAbertura());
     }
 
-    public void marcarAusente(Senha senha) throws SQLException {
-        senhasDao.marcarAusente(senha, guiche.getAbertura());
+    public void marcarAusente(String codigo) throws SQLException {
+        senhasDao.marcarAusente(codigo, guiche.getAbertura());
     }
 
 }

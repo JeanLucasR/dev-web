@@ -43,7 +43,7 @@ public class GuicheServlet extends HttpServlet{
             HttpSession sessao = req.getSession(true);
             sessao.setAttribute("id", id);
 
-            resp.sendRedirect("atendente.html");
+            resp.sendRedirect("atendente.html?id=" + id);
         } catch (NumberFormatException e){
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write(gson.toJson(Map.of("erro", "ID deve ser um número inteiro")));

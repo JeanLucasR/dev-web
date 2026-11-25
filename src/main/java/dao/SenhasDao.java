@@ -67,37 +67,37 @@ public class SenhasDao {
         }
     }
 
-    public boolean iniciarAtendimento(Senha senha, LocalDateTime aberturaGuiche) throws SQLException {
+    public boolean iniciarAtendimento(String codigo, LocalDateTime aberturaGuiche) throws SQLException {
         String sql = "UPDATE senhas SET stat = 'EM ATENDIMENTO', inicio_atendimento = CURRENT_TIMESTAMP WHERE codigo = ? AND emissao >= ? AND stat = 'CHAMADA'";
         try (
             Connection conn = ConnectionFactory.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)
         ) {
-            ps.setString(1, senha.getCodigo());
+            ps.setString(1, codigo);
             ps.setTimestamp(2, Timestamp.valueOf(aberturaGuiche));
             return ps.executeUpdate() > 0;
         }
     }
 
-    public boolean finalizarAtendimento(Senha senha, LocalDateTime aberturaGuiche) throws SQLException {
+    public boolean finalizarAtendimento(String codigo, LocalDateTime aberturaGuiche) throws SQLException {
         String sql = "UPDATE senhas SET stat = 'FINALIZADA', termino_atendimento = CURRENT_TIMESTAMP WHERE codigo = ? AND emissao >= ? AND stat = 'EM ATENDIMENTO'";
         try (
             Connection conn = ConnectionFactory.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)
         ) {
-            ps.setString(1, senha.getCodigo());
+            ps.setString(1, codigo);
             ps.setTimestamp(2, Timestamp.valueOf(aberturaGuiche));
             return ps.executeUpdate() > 0;
         }
     }
 
-    public boolean marcarAusente(Senha senha, LocalDateTime aberturaGuiche) throws SQLException {
+    public boolean marcarAusente(String codigo, LocalDateTime aberturaGuiche) throws SQLException {
         String sql = "UPDATE senhas SET stat = 'AUSENTE' WHERE codigo = ? AND emissao >= ? AND stat = 'CHAMADA'";
         try (
             Connection conn = ConnectionFactory.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)
         ) {
-            ps.setString(1, senha.getCodigo());
+            ps.setString(1, codigo);
             ps.setTimestamp(2, Timestamp.valueOf(aberturaGuiche));
             return ps.executeUpdate() > 0;
         }

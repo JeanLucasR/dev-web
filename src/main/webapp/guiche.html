@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicialização do Guichê</title>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="js/GuicheApp.js" defer></script>
+</head>
+
+<body>
+    <div id="app">
+        <h1>Inicializar Guichê</h1>
+
+        <form @submit.prevent="iniciarGuiche">
+
+            <div class="grupo">
+                <h3>Selecione seu guichê</h3>
+
+                <div class="opcao">
+                    <input type="radio" id="guiche1" value="1" v-model="id">
+                    <label for="guiche1">Guichê 1</label>
+                </div>
+
+                <div class="opcao">
+                    <input type="radio" id="guiche2" value="2" v-model="id">
+                    <label for="guiche2">Guichê 2</label>
+                </div>
+            </div>
+
+            <div class="grupo">
+                <h3>Tipos de atendimento</h3>
+
+                <div>
+                    <input type="checkbox" id="cnh" v-model="CNH">
+                    <label for="cnh">Renovação de CNH</label>
+                </div>
+
+                <div>
+                    <input type="checkbox" id="emissao" v-model="emissao">
+                    <label for="emissao">Emissão de documento</label>
+                </div>
+
+                <div>
+                    <input type="checkbox" id="lic" v-model="LIC">
+                    <label for="lic">Licenciamento anual</label>
+                </div>
+            </div>
+
+            <button type="submit">
+                {{ carregando ? "Inicializando..." : "Iniciar guichê" }}
+            </button>
+        </form>
+
+        <div v-if="mensagem">
+            {{ mensagem }}
+        </div>
+    </div>
+</body>
+</html>

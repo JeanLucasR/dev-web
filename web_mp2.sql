@@ -36,6 +36,14 @@ CREATE TABLE `guiches` (
   `abertura` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `guiches`
+--
+
+INSERT INTO `guiches` (`ID`, `atende_cnh`, `atende_emissao`, `atende_lic`, `abertura`) VALUES
+(1, NULL, NULL, NULL, NULL),
+(2, NULL, NULL, NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -48,11 +56,10 @@ CREATE TABLE `senhas` (
   `prioridade` tinyint(1) DEFAULT NULL,
   `tipo` varchar(20) DEFAULT NULL,
   `stat` varchar(50) DEFAULT 'AGUARDANDO',
-  `emissao` datetime DEFAULT NULL,
-  `chamada` datetime DEFAULT NULL,
-  `inicio_atendimento` datetime DEFAULT NULL,
-  `termino_atendimento` datetime DEFAULT NULL
+  `emissao` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
 
 --
 -- Índices para tabelas despejadas
@@ -84,11 +91,15 @@ ALTER TABLE `senhas`
 -- AUTO_INCREMENT de tabela `guiches`
 --
 ALTER TABLE `guiches`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `senhas`
 --
 ALTER TABLE `senhas`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
