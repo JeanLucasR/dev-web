@@ -1,0 +1,7 @@
+# Arquivos gerados pelo Maven
+target/
+
+# Arquivos Java compilados
+*.class
+
+*.log
