@@ -19,14 +19,33 @@ import jakarta.servlet.http.HttpSession;
 
 import service.AtendenteService;
 import dto.SenhasDto;
+import service.PainelService;
 import model.Senha;
+import dto.ChamadaDto;
+import observer.ChamadaSubject;
 
 @WebServlet("/atendente/*")
 public class AtendenteServlet extends HttpServlet {
     private final Gson gson = new Gson();
 
+    private final ChamadaSubject chamadas =
+        ChamadaSubject.getInstancia();
 
-    @Override 
+    private final PainelService painel =
+        PainelService.getInstancia();
+
+    @Override
+    public void init() {
+        chamadas.adicionarObserver(painel);
+    }
+
+    @Override
+    public void destroy() {
+        chamadas.removerObserver(painel);
+        super.destroy();
+    }
+
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException{
         resp.setContentType("application/json;charset=UTF-8");
 
@@ -38,7 +57,7 @@ public class AtendenteServlet extends HttpServlet {
             return;
         }
 
-        
+
         int id = (Integer) sessao.getAttribute("id");
 
         try{
@@ -47,7 +66,7 @@ public class AtendenteServlet extends HttpServlet {
 
             if("/listar".equals(caminho))
                 gson.toJson(service.listar(), resp.getWriter());
-            
+
             else
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 
@@ -57,12 +76,18 @@ public class AtendenteServlet extends HttpServlet {
         }
     }
 
-    @Override 
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException{
+
+        resp.setContentType("application/json;charset=UTF-8");
+
         HttpSession sessao = req.getSession(false);
 
         if (sessao == null || sessao.getAttribute("id") == null) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            gson.toJson(Map.of("erro", "Guichê não iniciado"), resp.getWriter()
+            );
+
             return;
         }
 
@@ -77,6 +102,21 @@ public class AtendenteServlet extends HttpServlet {
             if ("/chamar".equals(caminho)) {
                 Senha senha = service.chamarSenha();
 
+                if (senha == null) {
+                    resp.setStatus(
+                        HttpServletResponse.SC_NOT_FOUND
+                    );
+
+                    gson.toJson(Map.of("erro", "Não há senhas na fila"),resp.getWriter());
+
+                    return;
+                }
+
+                // Notifica o Observer sobre a nova chamada
+                chamadas.notificar(
+                    new ChamadaDto(senha.getCodigo(), id)
+                );
+
                 resp.setStatus(HttpServletResponse.SC_OK);
 
                 gson.toJson(
@@ -84,15 +124,13 @@ public class AtendenteServlet extends HttpServlet {
                         "senha", senha.getCodigo()
                     ),
                     resp.getWriter());
-
-                //TODO: implementar observer para o painel de senhas chamadas
             }
             else if("/iniciar".equals(caminho)){
                 JsonElement body = JsonParser.parseReader(req.getReader());
 
                 JsonObject entrada = body.getAsJsonObject();
                 JsonElement codigoElement = entrada.get("codigo");
-             
+
 
                 service.iniciarAtendimento(codigoElement.getAsString());
             }
@@ -123,11 +161,11 @@ public class AtendenteServlet extends HttpServlet {
     }
 
 
-    
 
-    
 
-    
+
+
+
 }
 
 
